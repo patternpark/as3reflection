@@ -187,10 +187,8 @@ package p2.reflect {
             assertTrue(reflection.hasVariable('height', 'Number'));
         }
         
-        //TODO: metadata nodes are available as child nodes
-        // for Reflection Members:
-        //public function testMetaData():void {
-        //}
+        public function testMetaData():void {
+        }
         
         public function testGetReadWriteMembers():void {
             var members:Array = reflection.readWriteMembers;
