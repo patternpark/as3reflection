@@ -2,6 +2,18 @@ h1. ActionScript 3 Reflection Library
 
 This library was created in order to simplify the interface to <code>flash.utils.describeType</code>.
 
+h1. Usage
+
+Check out the p2.reflect.Reflection class to see the methods that are available. 
+
+Here is a quick example:
+
+    import p2.reflect.Reflection;
+
+    var reflection:Reflection = Reflection.create("flash.display.Sprite");
+    trace(">> has addChild method?: " + reflection.hasMethod("addChild")); // true
+    trace(">> has foo method?: " + reflection.hasMethod("foo")); // false
+
 
 
 
