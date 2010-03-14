@@ -1,0 +1,7 @@
+h1. ActionScript 3 Reflection Library
+
+This library was created in order to simplify the interface to <code>flash.utils.describeType</code>.
+
+
+
+
