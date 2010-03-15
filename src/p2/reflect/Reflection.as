@@ -105,6 +105,51 @@ package p2.reflect {
             }
             return null;
         }
+
+        /**
+         * Returns whether or not this Class implements or extends the 
+         * provided Class or Interface name.
+         *
+         * The name provided must be fully qualified and can use only
+         * dots to delimit between the package and class name (pkg.ClassName), 
+         * or it can use the double-colon that Adobe seems to prefer.
+         *
+         **/
+        public function isA(fullyQualifiedClassOrInterfaceName:String):Boolean {
+            var cleanedName:String = normalizeEntityName(fullyQualifiedClassOrInterfaceName);
+            return referencesInterfaceOrClassName(function(name:String):Boolean {
+                return (name == cleanedName);
+            });
+        }
+
+        /**
+         * Works just like +isA+, but doesn't require a fully-qualified name,
+         * and will instead work with any portion of the full Class or Interface name.
+         **/
+        public function mightBeA(classOrInterfaceName:String):Boolean {
+            return referencesInterfaceOrClassName(function(name:String):Boolean {
+                return (name.indexOf(classOrInterfaceName) > -1);
+            });
+        }
+
+        private function referencesInterfaceOrClassName(matcher:Function):Boolean {
+            return findFirst(types, function(name:String, index:int, names:Array):Boolean {
+                return matcher.call(null, name);
+            });
+        }
+
+        /**
+         * Convert human-normal class names and return Adobe-generated Strings 
+         * for matching purposes.
+         **/
+        private function normalizeEntityName(name:String):String {
+            if(name.indexOf('::') > -1 || name.indexOf('.') == -1) {
+                return name;
+            }
+            var parts:Array = name.split('.');
+            var className:String = parts.pop();
+            return [parts.join('.'), className].join('::');
+        }
         
         public function hasAccessor(name:String, type:String, declaredBy:String=null):Boolean {
             return findFirst(accessors, function(item:*, index:int, items:Array):Boolean {
@@ -229,10 +274,7 @@ package p2.reflect {
         }
         
         public function get types():Array {
-            if(_types == null) {
-                _types = extendedClasses.concat(interfaceNames);
-            }
-            return _types;
+            return _types ||= extendedClasses.concat(interfaceNames);
         }
         
         public function get base():String {

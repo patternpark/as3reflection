@@ -201,5 +201,43 @@ package p2.reflect {
             var members:Array = reflection.readWriteMembers;
             assertEquals(32, members.length);
         }
+
+        public function testClassIsA():void {
+            var shape:Reflection     = new Reflection(FakeShape);
+            var rectangle:Reflection = new Reflection(FakeRectangle);
+            var circle:Reflection    = new Reflection(FakeCircle);
+
+            assertTrue('Rect is a Box', rectangle.isA('p2.reflect.FakeBox'));
+            assertTrue('Rect is a Shape', rectangle.isA('p2.reflect.FakeSuperClassInterface'));
+            assertTrue('Rect is a Shape', rectangle.isA('p2.reflect.FakeShape'));
+            assertFalse('Circle is not a Box', circle.isA('p2.reflect.FakeBox'));
+            assertTrue('Circle is a Shape', circle.isA('p2.reflect.FakeShape'));
+        }
+
+        public function testInstanceIsA():void {
+            var shape:Reflection     = new Reflection(new FakeShape());
+            var rectangle:Reflection = new Reflection(new FakeRectangle());
+            var circle:Reflection    = new Reflection(new FakeCircle());
+
+            assertTrue('Rect is a Box', rectangle.isA('p2.reflect.FakeBox'));
+            assertTrue('Rect is a Shape', rectangle.isA('p2.reflect.FakeSuperClassInterface'));
+            assertTrue('Rect is a Shape', rectangle.isA('p2.reflect.FakeShape'));
+            assertFalse('Circle is not a Box', circle.isA('p2.reflect.FakeBox'));
+            assertTrue('Circle is a Shape', circle.isA('p2.reflect.FakeShape'));
+        }
+
+        public function testClassMightBeA():void {
+            var shape:Reflection     = new Reflection(FakeShape);
+            var rectangle:Reflection = new Reflection(FakeRectangle);
+            var circle:Reflection    = new Reflection(FakeCircle);
+
+            assertTrue('Rect is a Box', rectangle.mightBeA('FakeBox'));
+            assertTrue('Rect is a Shape', rectangle.mightBeA('FakeSuperClassInterface'));
+            assertTrue('Rect is a Shape', rectangle.mightBeA('FakeShape'));
+            assertFalse('Circle is not a Box', circle.mightBeA('FakeBox'));
+            assertTrue('Circle is a Shape', circle.mightBeA('FakeShape'));
+        }
     }
 }
+
+

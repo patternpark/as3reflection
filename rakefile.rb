@@ -25,4 +25,5 @@ swc :swc do |t|
 end
 
 # set up the default rake task
-task :default => :debug
+task :default => :test
+
