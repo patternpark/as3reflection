@@ -4,6 +4,7 @@ package p2.reflect {
 
 	public class ReflectionMetaDataTest extends TestCase {
 
+        private var instance:Reflection;
         private var controller:Reflection;
         private var authenticate:ReflectionMethod;
 
@@ -13,6 +14,7 @@ package p2.reflect {
 
 		override protected function setUp():void {
 			super.setUp();
+            instance = new Reflection(new FakeController());
             controller = new Reflection(FakeController);
             authenticate = controller.getMethodByName('authenticate');
 		}
@@ -57,6 +59,12 @@ package p2.reflect {
         }
 
         public function testGetClassMetaData():void {
+            var otherFilter:ReflectionMetaData = controller.getMetaDataByName('OtherFilter');
+            assertNotNull('Should have found', otherFilter);
+            assertEquals('baz', otherFilter.bar);
+        }
+
+        public function testGetInstanceMetaData():void {
             var otherFilter:ReflectionMetaData = controller.getMetaDataByName('OtherFilter');
             assertNotNull('Should have found', otherFilter);
             assertEquals('baz', otherFilter.bar);
