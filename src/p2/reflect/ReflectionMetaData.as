@@ -33,9 +33,13 @@ package p2.reflect {
         }
 
         public function getValueFor(argumentKey:String):* {
-            return findFirst(args, function(item:Object, index:int, items:Array):Boolean {
+            var found:Object =  findFirst(args, function(item:Object, index:int, items:Array):Boolean {
                 return (item.key == argumentKey);
             });
+            if(found) {
+                return found.value;
+            }
+            return null;
         }
 
         public function toString():String {
