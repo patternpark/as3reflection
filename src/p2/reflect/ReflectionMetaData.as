@@ -1,25 +1,31 @@
 package p2.reflect {
 
+    /**
+     * Parses:
+     * <metadata name="BeforeFilter">
+     *   <arg key="order" value="1"/>
+     * </metadata>
+     */
     dynamic public class ReflectionMetaData {
 
-        private var source:XML;
-        private var _name:String;
         private var _args:Array;
+		private var _description:XML;
+		private var _name:String;
 
-		public function ReflectionMetaData(source:XML) {
-			this.source = source;
+		public function ReflectionMetaData(description:XML) {
+			_description = description;
+        }
+
+		public function get name():String {
+			return _name ||= _description.@name;
 		}
 
-        public function get name():String {
-            return _name ||= source.@name;
+        public function get description():XML {
+            return _description;
         }
 
         public function get args():Array {
             return _args ||= parseArgs();
-        }
-
-        public function toString():String {
-            return source.toString();
         }
 
         public function getValueFor(argumentKey:String):* {
@@ -30,7 +36,7 @@ package p2.reflect {
 
         private function parseArgs():Array {
             var items:Array = [];
-            var list:XMLList = source..arg;
+            var list:XMLList = description..arg;
             var item:XML;
             var key:String;
             var value:*;
@@ -44,10 +50,3 @@ package p2.reflect {
         }
     }
 }
-
-/*
-Parses:
-<metadata name="BeforeFilter">
-  <arg key="order" value="1"/>
-</metadata>
-*/

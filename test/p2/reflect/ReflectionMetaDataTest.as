@@ -13,7 +13,7 @@ package p2.reflect {
 
 		override protected function setUp():void {
 			super.setUp();
-            controller = Reflection.create(FakeController);
+            controller = new Reflection(FakeController);
             authenticate = controller.getMethodByName('authenticate');
 		}
 
@@ -31,6 +31,11 @@ package p2.reflect {
             assertEquals('doSomething', prop.name);
             prop = members.shift();
             assertEquals('someProp', prop.name);
+        }
+
+        public function testGetMethodsByMetaDataName():void {
+            var methods:Array = controller.getMethodsByMetaData('OtherFilter');
+            assertEquals(2, methods.length);
         }
 
         public function testGetMembersByMetaDataNameWithNoResult():void {

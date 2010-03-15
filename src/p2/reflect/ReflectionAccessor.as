@@ -1,28 +1,14 @@
 package p2.reflect {
 
-	public class ReflectionAccessor extends ReflectionMember {
+	public class ReflectionAccessor extends ReflectionVariable {
 		protected var _access:String;
-		protected var _type:String;
 		
-		public function ReflectionAccessor(source:XML, lock:Lock) {
-			super(source);
-			_access = source.@access;
-			_type = source.@type;
-		}
-		
-		public static function create(source:XML):ReflectionAccessor {
-			return new ReflectionAccessor(source, new Lock());
+		public function ReflectionAccessor(description:XML) {
+			super(description);
 		}
 		
 		public function get access():String {
-			return _access;
+			return _access ||= description.@access;
 		}
-		
-		public function get type():String {
-			return _type;			
-		}		
 	}
-}
-
-class Lock {
 }

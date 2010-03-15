@@ -15,8 +15,8 @@ package p2.reflect {
 
         protected override function setUp():void {
             sprite = new Sprite();
-            reflection = Reflection.create(sprite);
-            classReflection = Reflection.create(Sprite);
+            reflection = new Reflection(sprite);
+            classReflection = new Reflection(Sprite);
             fakeRecord = new FakeRecord();
         }
 
@@ -31,16 +31,6 @@ package p2.reflect {
             assertTrue("Reflection instantiated", reflection is Reflection);
         }
 
-        public function testBlockedConstructor():void {
-            try {
-                var broken:Reflection = new Reflection(fakeRecord, null);
-                assertTrue("Reflection constructor should throw if anyone attempts to instantiate it directly", false);
-            }
-            catch(e:Error) {
-                assertTrue(true);
-            }
-        }
-        
         public function testCache():void {
             var reflect1:Reflection = Reflection.create(Object);
             var reflect2:Reflection = Reflection.create(Object);
@@ -167,7 +157,7 @@ package p2.reflect {
         
         public function testConstructor():void {
             var rect:Rectangle = new Rectangle();
-            var reflection:Reflection = Reflection.create(rect);
+            var reflection:Reflection = new Reflection(rect);
             var parameters:Array = reflection.constructor.parameters;
             assertTrue(reflection.hasConstructor);
             assertEquals(1, parameters[0].index);
@@ -182,7 +172,7 @@ package p2.reflect {
         
         public function testVariables():void {
             var rect:Rectangle = new Rectangle();
-            var reflection:Reflection = Reflection.create(rect);
+            var reflection:Reflection = new Reflection(rect);
             var variables:Array = reflection.variables;
             assertEquals(4, variables.length);
             assertTrue(reflection.hasVariable('y', 'Number'));

@@ -5,7 +5,7 @@ package p2.reflect {
     import flash.utils.getDefinitionByName;
     import flash.utils.getQualifiedClassName;
     
-    public class Reflection {
+    public class Reflection extends ReflectionBase {
         private static var READ_WRITE:String = "readwrite";
         private static var READ_ONLY:String = "readonly";
         private static var WRITE_ONLY:String = "writeonly";
@@ -15,7 +15,6 @@ package p2.reflect {
         private var _base:String;
         private var _classReference:Class;
         private var _constructor:ReflectionMethod;
-        private var _description:XML;
         private var _extendedClasses:Array;
         private var _interfaceNames:Array;
         private var _isClass:Boolean;
@@ -24,27 +23,28 @@ package p2.reflect {
         private var _isStatic:Boolean;
         private var _methodNames:Array;
         private var _methods:Array;
-        private var _name:String;
         private var _readMembers:Array;
         private var _readWriteMembers:Array;
         private var _types:Array;
         private var _variables:Array;
         private var _writeMembers:Array;
 
-        public function Reflection(source:*, lock:Lock) {
-            _description = describeType(source);
-            _isClass = (source is Class);
+        public function Reflection(classOrInstance:*) {
+            _isClass = (classOrInstance is Class);
+            super(describeType(classOrInstance));
         }
         
-        public static function create(source:*):Reflection {
-            var name:String = getQualifiedClassName(source) + ((source is Class) ? "Class" : "");
+        public static function create(classOrInstance:*):Reflection {
+            var name:String = getCacheNameFromClassOrInstance(classOrInstance);
             var cache:Object = getCache();
             if(cache[name] != null) {
                 return cache[name];
             }
-            var reflection:Reflection = new Reflection(source, new Lock());
-            cache[name] = reflection;
-            return reflection;
+            return cache[name] = new Reflection(classOrInstance);
+        }
+
+        private static function getCacheNameFromClassOrInstance(classOrInstance:*):String {
+            return getQualifiedClassName(classOrInstance) + ((classOrInstance is Class) ? "Class" : "");
         }
         
         private static function getCache():Object {
@@ -64,7 +64,7 @@ package p2.reflect {
             var item:XML;
             var method:ReflectionMethod
             for each(item in list) {
-                method = ReflectionMethod.create(item);
+                method = new ReflectionMethod(item);
                 methods.push(method);
             }
             return methods;
@@ -76,14 +76,10 @@ package p2.reflect {
             var item:XML;
             var accessor:ReflectionAccessor;
             for each(item in list) {
-                accessor = ReflectionAccessor.create(item);
+                accessor = new ReflectionAccessor(item);
                 accessors.push(accessor);
             }
             return accessors;
-        }
-        
-        public function get description():XML {
-            return _description;
         }
         
         public function get hasConstructor():Boolean {
@@ -101,7 +97,7 @@ package p2.reflect {
             if(_constructor == null) {
                 var constr:XML = description..constructor[0];
                 if(constr != null) {
-                    _constructor = ReflectionMethod.create(constr);
+                    _constructor = new ReflectionMethod(constr);
                 }
             }
             return _constructor;
@@ -141,7 +137,7 @@ package p2.reflect {
             var list:XMLList = description..variable;
             var item:XML;
             for each(item in list) {
-                result.push(ReflectionVariable.create(item));
+                result.push(new ReflectionVariable(item));
             }
             return result;
         }
@@ -237,12 +233,8 @@ package p2.reflect {
             return _types;
         }
         
-        public function get name():String {
-            return _name ||= _description.@name;
-        }
-        
         public function get base():String {
-            return _base ||= _description.@base;
+            return _base ||= description.@base;
         }
         
         public function get isClass():Boolean {
@@ -250,15 +242,15 @@ package p2.reflect {
         }
         
         public function get isDynamic():Boolean {
-            return _isDynamic ||= (_description.@isDynamic == "true");
+            return _isDynamic ||= (description.@isDynamic == "true");
         }
         
         public function get isFinal():Boolean {
-            return _isFinal ||= (_description.@isFinal == "true");
+            return _isFinal ||= (description.@isFinal == "true");
         }
         
         public function get isStatic():Boolean {
-            return _isStatic ||= (_description.@isStatic == "true");
+            return _isStatic ||= (description.@isStatic == "true");
         }
         
         public function get methods():Array {
@@ -298,9 +290,23 @@ package p2.reflect {
             return (methodNames.indexOf(methodName) > -1);
         }
 
-        public function getMembersByMetaData(name:String):Array {
+        /**
+         * Return an alphabetized list of all variables, accessors and
+         * methods that are annotated with the provided +metaDataName+.
+         **/
+        public function getMembersByMetaData(metaDataName:String):Array {
             return allMembers.filter(function(item:ReflectionMember, index:int, items:Array):Boolean {
-                return (item.getMetaDataByName(name) != null);
+                return (item.getMetaDataByName(metaDataName) != null);
+            });
+        }
+
+        /**
+         * Return an alphabetized list of all methods that are 
+         * annotated with the provided +metaDataName+.
+         **/
+        public function getMethodsByMetaData(metaDataName:String):Array {
+            return methods.filter(function(item:ReflectionMember, index:int, items:Array):Boolean {
+                return (item.getMetaDataByName(metaDataName) != null);
             });
         }
         
@@ -328,7 +334,7 @@ package p2.reflect {
         // a) Only member variables and accessors that are read/write will be cloned
         // b) The clone is shallow, meaning property references will not also be cloned
         public static function clone(instance:Object):Object {
-            var reflection:Reflection = Reflection.create(instance);
+            var reflection:Reflection = new Reflection(instance);
             var clazz:Class = reflection.classReference;
             var clone:Object = new clazz();
             var members:Array = reflection.readWriteMembers;
@@ -340,13 +346,6 @@ package p2.reflect {
             }
             return clone;
         }
-        
-        public function toString():String {
-            return description.toString();
-        }
     }
-}
-
-class Lock {
 }
 

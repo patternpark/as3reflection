@@ -1,41 +1,19 @@
 package p2.reflect {
-	import flash.xml.XMLNode;
-	
 
-	public class ReflectionMethodParameter {
-		protected var source:XML;
+	public class ReflectionMethodParameter extends ReflectionVariable {
 		protected var _index:int;
-		protected var _type:String;
 		protected var _optional:Boolean;
 		
-		public function ReflectionMethodParameter(source:XML, lock:Lock) {
-			this.source = source;
-			_index = source.@index;
-			_type = source.@type;
-			_optional = (source.@optional == "true");
-		}
-		
-		public static function create(source:XML):ReflectionMethodParameter {
-			return new ReflectionMethodParameter(source, new Lock());
+		public function ReflectionMethodParameter(description:XML) {
+		    super(description);
 		}
 		
 		public function get index():int {
-			return _index;
-		}
-		
-		public function get type():String {
-			return _type;
+			return _index ||= description.@index;
 		}
 		
 		public function get optional():Boolean {
-			return _optional;
-		}
-		
-		public function toString():String {
-			return source.toXMLString();
+			return _optional ||= (description.@optional == "true");
 		}
 	}
-}
-
-class Lock {
 }
