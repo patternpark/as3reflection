@@ -11,7 +11,7 @@ package p2.reflect {
         }
 
 		public function get name():String {
-			return _name ||= _description.@name;
+			return _name ||= description.@name;
 		}
 
         public function get description():XML {
@@ -23,7 +23,7 @@ package p2.reflect {
         }
 		
 		public function toString():String {
-			return _description.toXMLString();
+			return description.toXMLString();
 		}
 
         public function getMetaDataByName(name:String):ReflectionMetaData {
@@ -32,9 +32,15 @@ package p2.reflect {
             });
         }
 
+        // Class metadata is stored in a different
+        // location from member metadata... Boo.
+        protected function getRawMetaData():XMLList {
+            return description.metadata;
+        }
+
         private function parseMetaDataItems():Array {
             var items:Array = [];
-            var list:XMLList = _description..metadata;
+            var list:XMLList = getRawMetaData();
             var item:XML;
             for each(item in list) {
                 items.push(new ReflectionMetaData(item));

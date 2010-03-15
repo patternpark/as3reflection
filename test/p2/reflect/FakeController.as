@@ -1,5 +1,6 @@
 package p2.reflect {
 
+    [OtherFilter(bar='baz')]
     public class FakeController {
 
         [OtherFilter]

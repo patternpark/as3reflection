@@ -55,5 +55,11 @@ package p2.reflect {
             assertEquals('beforeFilter.order', 1, beforeFilter.order);
             assertEquals('beforeFilter.foo', 'bar', beforeFilter.foo);
         }
+
+        public function testGetClassMetaData():void {
+            var otherFilter:ReflectionMetaData = controller.getMetaDataByName('OtherFilter');
+            assertNotNull('Should have found', otherFilter);
+            assertEquals('baz', otherFilter.bar);
+        }
 	}
 }

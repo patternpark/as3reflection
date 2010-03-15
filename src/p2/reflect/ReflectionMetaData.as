@@ -14,6 +14,10 @@ package p2.reflect {
 
 		public function ReflectionMetaData(description:XML) {
 			_description = description;
+            // Have to parse args here, because the 
+            // args are appended to this instance - there's
+            // no getter to trigger the parse:
+            _args = parseArgs();
         }
 
 		public function get name():String {
@@ -25,13 +29,17 @@ package p2.reflect {
         }
 
         public function get args():Array {
-            return _args ||= parseArgs();
+            return _args;
         }
 
         public function getValueFor(argumentKey:String):* {
             return findFirst(args, function(item:Object, index:int, items:Array):Boolean {
                 return (item.key == argumentKey);
             });
+        }
+
+        public function toString():String {
+            return description;
         }
 
         private function parseArgs():Array {

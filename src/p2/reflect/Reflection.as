@@ -43,6 +43,10 @@ package p2.reflect {
             return cache[name] = new Reflection(classOrInstance);
         }
 
+        override protected function getRawMetaData():XMLList {
+            return description.factory.metadata;
+        }
+
         private static function getCacheNameFromClassOrInstance(classOrInstance:*):String {
             return getQualifiedClassName(classOrInstance) + ((classOrInstance is Class) ? "Class" : "");
         }
