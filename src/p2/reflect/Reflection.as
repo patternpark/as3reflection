@@ -91,22 +91,20 @@ package p2.reflect {
         }
         
         public function get classReference():Class {
-            if(_classReference == null) {
-                _classReference = getDefinitionByName(name.split("::").join(".")) as Class;
-            }
-            return _classReference;
+            return _classReference ||= getDefinitionByName(name.split("::").join(".")) as Class;
         }
-        
+
         public function get constructor():ReflectionMethod {
-            if(_constructor == null) {
-                var constr:XML = description..constructor[0];
-                if(constr != null) {
-                    _constructor = new ReflectionMethod(constr);
-                }
-            }
-            return _constructor;
+            return _constructor ||= buildConstructor();
         }
-        
+
+        private function buildConstructor():ReflectionMethod {
+            var constr:XML = description..constructor[0];
+            if(constr != null) {
+                return new ReflectionMethod(constr);
+            }
+            return null;
+        }
         
         public function hasAccessor(name:String, type:String, declaredBy:String=null):Boolean {
             return findFirst(accessors, function(item:*, index:int, items:Array):Boolean {
@@ -337,6 +335,7 @@ package p2.reflect {
         // This implementation of Clone has some serious caveats...
         // a) Only member variables and accessors that are read/write will be cloned
         // b) The clone is shallow, meaning property references will not also be cloned
+        // c) Only argument-free constructors are supported
         public static function clone(instance:Object):Object {
             var reflection:Reflection = new Reflection(instance);
             var clazz:Class = reflection.classReference;

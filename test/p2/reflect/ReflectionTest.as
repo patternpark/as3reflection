@@ -169,6 +169,22 @@ package p2.reflect {
             var constructor:ReflectionMethod = reflection.constructor;
             assertFalse(reflection.hasConstructor);
         }
+
+        public function testInstantiate():void {
+            var clazz:Class = new Reflection(Rectangle).classReference;
+            var rect:Rectangle = new clazz();
+            assertTrue(rect is Rectangle);
+        }
+
+        public function testInstantiateWithArguments():void {
+            var clazz:Class = new Reflection(Rectangle).classReference;
+            var rect:Rectangle = new clazz(25, 30, 35, 40);
+            assertTrue(rect is Rectangle);
+            assertEquals(25, rect.x);
+            assertEquals(30, rect.y);
+            assertEquals(35, rect.width);
+            assertEquals(40, rect.height);
+        }
         
         public function testVariables():void {
             var rect:Rectangle = new Rectangle();
