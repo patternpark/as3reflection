@@ -12,7 +12,7 @@ package p2.reflect {
 		public static function create(source:XML):ReflectionMethod {
 			return new ReflectionMethod(source, new Lock());
 		}
-		
+
 		private function buildParameters():Array {
 			var parameters:Array = new Array();
 			var list:XMLList = source..parameter;

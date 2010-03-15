@@ -1,9 +1,9 @@
 package p2.reflect {
+    import flash.net.getClassByAlias;
     import flash.utils.Dictionary;
     import flash.utils.describeType;
-    import flash.utils.getQualifiedClassName;
-    import flash.net.getClassByAlias;
     import flash.utils.getDefinitionByName;
+    import flash.utils.getQualifiedClassName;
     
     public class Reflection {
         private static var READ_WRITE:String = "readwrite";
@@ -11,6 +11,7 @@ package p2.reflect {
         private static var WRITE_ONLY:String = "writeonly";
         private static var reflections:Object;
         private var _accessors:Array;
+        private var _allMembers:Array;
         private var _base:String;
         private var _classReference:Class;
         private var _constructor:ReflectionMethod;
@@ -32,11 +33,6 @@ package p2.reflect {
 
         public function Reflection(source:*, lock:Lock) {
             _description = describeType(source);
-            _name = _description.@name;
-            _base = _description.@base;
-            _isDynamic = (_description.@isDynamic == "true");
-            _isFinal = (_description.@isFinal == "true");
-            _isStatic = (_description.@isStatic == "true");
             _isClass = (source is Class);
         }
         
@@ -61,7 +57,7 @@ package p2.reflect {
         public static function clearCache():void {
             reflections = new Object();
         }
-        
+
         private function buildMethods():Array {
             var methods:Array = new Array();
             var list:XMLList = description..method;
@@ -136,47 +132,38 @@ package p2.reflect {
             }) != null;
         }
         
-        private function findFirst(collection:Array, handler:Function):* {
-            var result:*;
-            collection.every(function(item:Object, index:int, items:Array):Boolean {
-                    if(handler(item, index, items)) {
-                    result = item;
-                    return false;
-                    }
-                    return true;
-                    });
-            return result;
+        public function get variables():Array {
+            return _variables ||= buildVariables();
         }
 
-        public function get variables():Array {
-            if(_variables == null) {
-                _variables = new Array();
-                var list:XMLList = description..variable;
-                var item:XML;
-                for each(item in list) {
-                    _variables.push(ReflectionVariable.create(item));
-                }
+        private function buildVariables():Array {
+            var result:Array = [];
+            var list:XMLList = description..variable;
+            var item:XML;
+            for each(item in list) {
+                result.push(ReflectionVariable.create(item));
             }
-            return _variables;
+            return result;
         }
         
         public function get readWriteMembers():Array {
-            if(_readWriteMembers == null) {
-                _readWriteMembers = [];
-                variables.forEach(function(item:*, index:int, items:Array):void {
-                    _readWriteMembers.push(item);
-                });
-                
-                var accessors:Array = this.accessors;
-                var accessor:ReflectionAccessor
-                for each(accessor in accessors) {
-                    if(accessor.access == READ_WRITE) {
-                        _readWriteMembers.push(accessor);
-                    }
+            return _readWriteMembers ||= buildReadWriteMembers();
+        }
+
+        private function buildReadWriteMembers():Array {
+            var result:Array = [];
+
+            variables.forEach(function(item:*, index:int, items:Array):void {
+                result.push(item);
+            });
+
+            accessors.forEach(function(accessor:ReflectionAccessor, index:int, items:Array):void {
+                if(accessor.access == READ_WRITE) {
+                    result.push(accessor);
                 }
-            }
+            });
             
-            return _readWriteMembers;
+            return result;
         }
 
         public function get readMembers():Array {
@@ -216,27 +203,31 @@ package p2.reflect {
         }
         
         public function get interfaceNames():Array {
-            if(_interfaceNames == null) {
-                _interfaceNames = new Array();
-                var list:XMLList = description..implementsInterface.@type;
-                var item:XML;
-                for each(item in list) {
-                    _interfaceNames.push(item);
-                }
+            return _interfaceNames ||= buildInterfaceNames();
+        }
+
+        private function buildInterfaceNames():Array {
+            var result:Array = new Array();
+            var list:XMLList = description..implementsInterface.@type;
+            var item:XML;
+            for each(item in list) {
+                result.push(item);
             }
-            return _interfaceNames;
+            return result;
         }
         
         public function get extendedClasses():Array {
-            if(_extendedClasses == null) {
-                _extendedClasses = new Array();
-                var list:XMLList = description..extendsClass.@type;
-                var item:XML;
-                for each(item in list) {
-                    _extendedClasses.push(item);
-                }
+            return _extendedClasses ||= buildExtendedClasses();
+        }
+
+        private function buildExtendedClasses():Array {
+            var result:Array = [];
+            var list:XMLList = description..extendsClass.@type;
+            var item:XML;
+            for each(item in list) {
+                result.push(item);
             }
-            return _extendedClasses;
+            return result;
         }
         
         public function get types():Array {
@@ -247,11 +238,11 @@ package p2.reflect {
         }
         
         public function get name():String {
-            return _name;
+            return _name ||= _description.@name;
         }
         
         public function get base():String {
-            return _base;
+            return _base ||= _description.@base;
         }
         
         public function get isClass():Boolean {
@@ -259,52 +250,58 @@ package p2.reflect {
         }
         
         public function get isDynamic():Boolean {
-            return _isDynamic;
+            return _isDynamic ||= (_description.@isDynamic == "true");
         }
         
         public function get isFinal():Boolean {
-            return _isFinal;
+            return _isFinal ||= (_description.@isFinal == "true");
         }
         
         public function get isStatic():Boolean {
-            return _isStatic;
+            return _isStatic ||= (_description.@isStatic == "true");
         }
         
         public function get methods():Array {
-            if(_methods == null) {
-                _methods = buildMethods();
-            }
-            return _methods;
+            return _methods ||= buildMethods();
         }
         
         public function get accessors():Array {
-            if(_accessors == null) {
-                _accessors = buildAccessors();
-            }
-            return _accessors;
+            return _accessors ||= buildAccessors();
+        }
+
+        /**
+         * An alphabetized list of all variables, accessors and methods.
+         **/
+        public function get allMembers():Array {
+            return _allMembers ||= buildAllMembers();
+        }
+
+        private function buildAllMembers():Array {
+            return variables.concat(accessors).concat(methods).sortOn('name');
         }
         
         public function get methodNames():Array {
-            if(_methodNames == null) {
-                _methodNames = new Array();
-                var list:XMLList = description..method.@name;
-                var item:XML;
-                for each(item in list) {
-                    _methodNames.push(item);
-                }
+            return _methodNames ||= buildMethodNames();
+        }
+
+        private function buildMethodNames():Array {
+            var result:Array = [];
+            var list:XMLList = description..method.@name;
+            var item:XML;
+            for each(item in list) {
+                result.push(item.toString());
             }
-            return _methodNames;
+            return result;
         }
         
-        public function hasMethod(name:String):Boolean {
-            var names:Array = methodNames;
-            var ln:Number = names.length;
-            for(var i:Number = 0; i < ln; i++) {
-                if(names[i] == name) {
-                    return true;
-                }
-            }
-            return false;
+        public function hasMethod(methodName:String):Boolean {
+            return (methodNames.indexOf(methodName) > -1);
+        }
+
+        public function getMembersByMetaData(name:String):Array {
+            return allMembers.filter(function(item:ReflectionMember, index:int, items:Array):Boolean {
+                return (item.getMetaDataByName(name) != null);
+            });
         }
         
         public function getAccessorByName(name:String):ReflectionAccessor {

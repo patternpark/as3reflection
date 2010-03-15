@@ -10,7 +10,11 @@ project_model :model do |m|
 end
 
 desc 'Compile run the test harness'
-unit :test
+unit :test do |t|
+  t.keep_as3_metadata << 'BeforeFilter'
+  t.keep_as3_metadata << 'AfterFilter'
+  t.keep_as3_metadata << 'OtherFilter'
+end
 
 desc 'Create documentation'
 document :doc

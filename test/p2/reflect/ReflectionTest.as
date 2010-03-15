@@ -59,7 +59,11 @@ package p2.reflect {
             var methods:Array = reflection.methods;
             assertTrue(methods.length > 0);
         }
-        
+
+        public function testGetAllMembers():void {
+            assertEquals(69, reflection.allMembers.length);
+        }
+
         public function testGetMethod():void {
             var method:ReflectionMethod = reflection.getMethodByName('startDrag');
             var parameters:Array = method.parameters;
@@ -80,7 +84,7 @@ package p2.reflect {
             assertTrue(found);
         }
         
-        public function testHasMethodName():void {
+        public function testHasMethod():void {
             assertTrue(reflection.hasMethod("swapChildren"));
             assertFalse(reflection.hasMethod("foobar"));
         }
@@ -187,32 +191,9 @@ package p2.reflect {
             assertTrue(reflection.hasVariable('height', 'Number'));
         }
         
-        public function testMetaData():void {
-        }
-        
         public function testGetReadWriteMembers():void {
             var members:Array = reflection.readWriteMembers;
             assertEquals(32, members.length);
         }
-    }
-}
-
-class FakeController {
-    
-    [BeforeFilter(order=1)]
-    public function authenticate():void {
-    }
-    
-    [AfterFilter(order=2)]
-    public function cleanRecords():void {
-    }
-}
-
-class FakeRecord {
-    public var name:String;
-    public var prop1:String;
-    
-    public function get label():String {
-        return name;
     }
 }
