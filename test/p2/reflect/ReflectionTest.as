@@ -136,7 +136,7 @@ package p2.reflect {
             assertEquals("flash.display::IBitmapDrawable", interfaceNames[0]);
             assertEquals("flash.events::IEventDispatcher", interfaceNames[1]);
         }
-        
+
         public function testInheritedNames():void {
             var extendedClasses:Array = reflection.extendedClasses;
             assertEquals("flash.display::DisplayObjectContainer", extendedClasses[0]);
@@ -237,7 +237,24 @@ package p2.reflect {
             assertFalse('Circle is not a Box', circle.mightBeA('FakeBox'));
             assertTrue('Circle is a Shape', circle.mightBeA('FakeShape'));
         }
+
+        public function testIsInterface():void {
+            var reflection:Reflection;
+            reflection = new Reflection(SomeClass);
+            assertFalse("Class is not interface", reflection.isInterface);
+
+            reflection = new Reflection(new SomeClass());
+            assertFalse("Interface is not instance", reflection.isInterface);
+
+            reflection = new Reflection(SomeInterface);
+            assertTrue("We should know if it's an interface", reflection.isInterface);
+        }
     }
 }
 
+interface SomeInterface {
+}
+
+class SomeClass implements SomeInterface {
+}
 
