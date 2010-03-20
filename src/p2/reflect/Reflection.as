@@ -287,7 +287,7 @@ package p2.reflect {
         }
 
         private function inferIsInterface():Boolean {
-            return (base == "Class" && description..factory.children().length() == 0);
+            return (base == "Class" && (description..factory..extendsClass.length() == 0));
         }
         
         public function get isClass():Boolean {

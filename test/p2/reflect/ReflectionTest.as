@@ -238,21 +238,32 @@ package p2.reflect {
             assertTrue('Circle is a Shape', circle.mightBeA('FakeShape'));
         }
 
-        public function testIsInterface():void {
-            var reflection:Reflection;
-            reflection = new Reflection(SomeClass);
+        public function testClassIsNotInterface():void {
+            var reflection:Reflection = new Reflection(SomeClass);
             assertFalse("Class is not interface", reflection.isInterface);
+        }
 
-            reflection = new Reflection(new SomeClass());
+        public function testInstanceIsNotInterface():void {
+            var reflection:Reflection = new Reflection(new SomeClass());
             assertFalse("Interface is not instance", reflection.isInterface);
-
-            reflection = new Reflection(SomeInterface);
+        }
+        
+        public function testInterfaceIsInterface():void {
+            var reflection:Reflection = new Reflection(SomeInterface);
             assertTrue("We should know if it's an interface", reflection.isInterface);
+        }
+
+        public function testInterfaceSubclassIsInterface():void {
+            var reflection:Reflection = new Reflection(InterfaceSubclass);
+            assertTrue("Even interface subclasses should be an interface", reflection.isInterface);
         }
     }
 }
 
 interface SomeInterface {
+}
+
+interface InterfaceSubclass extends SomeInterface {
 }
 
 class SomeClass implements SomeInterface {
