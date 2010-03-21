@@ -14,6 +14,7 @@ unit :test do |t|
   t.keep_as3_metadata << 'BeforeFilter'
   t.keep_as3_metadata << 'AfterFilter'
   t.keep_as3_metadata << 'OtherFilter'
+  t.keep_as3_metadata << 'ArrayValue'
 end
 
 desc 'Create documentation'

@@ -3,6 +3,9 @@ package p2.reflect {
     [OtherFilter(bar='baz')]
     public class FakeController {
 
+        [ArrayValue('a','b','c')]
+        public var arrayProp:String;
+
         [OtherFilter]
         public var someProp:String;
 

@@ -69,5 +69,18 @@ package p2.reflect {
             assertNotNull('Should have found', otherFilter);
             assertEquals('baz', otherFilter.bar);
         }
+
+        public function testArrayValue():void {
+            var members:Array = controller.getMembersByMetaData('ArrayValue');
+            assertEquals("found methods", 1, members.length);
+
+            var arrayValue:ReflectionMetaData = members[0].getMetaDataByName('ArrayValue');
+            var args:Array = arrayValue.args;
+            assertNotNull('Should have found', arrayValue);
+            assertEquals(3, args.length);
+            assertEquals('a', args.shift());
+            assertEquals('b', args.shift());
+            assertEquals('c', args.shift());
+        } 
 	}
 }
